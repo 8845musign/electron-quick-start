@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, MenuItem } = require('electron')
+const { app, BrowserWindow, Menu, MenuItem, ipcMain } = require('electron')
 const path = require('path')
 const { platform } = require('process')
 
@@ -35,3 +35,24 @@ app.whenReady().then(() => {
 app.on('window-all-close', ()=>{
     if (process.platform !== 'darwin') app.quit();
 })
+
+// コンテキストメニューを表示
+// メニューを作成
+const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "Test Menu",
+      click: () => {
+        // ウィンドウを取得して、レンダラーに通知
+        const w = BrowserWindow.getFocusedWindow();
+        w.webContents.send("popuo-return");
+      },
+    },
+    { type: "separator" },
+    { role: "quit" },
+  ]);
+  // コンテキストメニューを表示
+  ipcMain.handle("popupMenu", (event) => {
+    const w = BrowserWindow.getFocusedWindow();
+    contextMenu.popup(w);
+    return;
+  });

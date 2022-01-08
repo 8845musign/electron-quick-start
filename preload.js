@@ -10,3 +10,12 @@ window.addEventListener('DOMContentLoaded', () => {
         replaceText(`${dependancy}-version`, process.versions[dependancy]);
     }
 })
+
+const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld("electron", {
+  popupMenu: async (data) => await ipcRenderer.invoke("popupMenu", data),
+  // メイン → レンダラー
+  on: (channel, callback) =>
+    ipcRenderer.on(channel, (event, argv) => callback(event, argv)),
+});
